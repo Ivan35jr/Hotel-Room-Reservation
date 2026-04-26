@@ -1,2 +1,61 @@
-# Hotel-Room-Reservation
-A complete hotel room reservation system built in C++. Features separate admin and customer interfaces, multiple room types (Single/Double/Family), booking CRUD operations, secure authentication, and automatic cost calculation. Data stored in text files for persistence.
+# 🏨 Hotel Del Luna - Room Reservation System
+
+A comprehensive C++ command-line based hotel room reservation system that allows customers to book rooms and administrators to manage bookings efficiently.
+
+## 🎯 Overview
+
+Hotel Del Luna Room Reservation System is a console-based application developed in C++ that provides a complete solution for managing hotel room bookings. The system features two main user roles: **Administrator** and **Customer**, each with specific functionalities tailored to their needs.
+
+### Key Highlights
+- 🔐 Secure authentication system for both admins and customers
+- 🛏️ Multiple room types with different pricing
+- 💰 Automatic cost calculation
+- 📊 Comprehensive booking management
+- 👥 Multi-user support with unique identification
+
+## ✨ Features
+
+### 👑 Admin Features
+- **Room Booking** - Book rooms on behalf of customers
+- **Search Bookings** - Search and display customer booking information by name
+- **View All Bookings** - Display all bookings in the system
+- **Update Bookings** - Modify existing booking details
+- **Delete Bookings** - Remove bookings from the system
+- **Secure Admin Login** - Password-protected admin access
+
+### 👤 Customer Features
+- **User Registration** - Automatic registration during first booking
+- **Secure Login** - Username and password authentication
+- **Room Booking** - Book rooms with personal information
+- **View Bookings** - Display personal booking history
+- **View Personal Info** - Display account information
+- **Multiple Bookings** - Customers can make multiple bookings (with confirmation)
+
+## 📥 How to Run
+### 1. Windows
+**Clone the repository**
+git clone https://github.com/yourusername/hotel-del-luna.git
+cd hotel-del-luna
+
+**Compile the program**
+g++ Hotel.cpp -o Hotel.exe
+
+**Run the program**
+./Hotel.exe
+
+### 2. Linux/Mac
+**Clone the repository**
+git clone https://github.com/yourusername/hotel-del-luna.git
+cd hotel-del-luna
+
+**Compile the program**
+g++ Hotel.cpp -o hotel
+
+**Run the program**
+./hotel
+
+## For Administrators
+Default Admin Password: 123
+
+## Data Storage - Customer.txt format
+Username,Password,PhoneNumber,RoomType,Days,RoomNumber,TotalCost
