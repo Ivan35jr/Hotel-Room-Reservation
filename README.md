@@ -61,17 +61,17 @@ Default Admin Password: 123
 
 ## For Customers
 **1. First-time Booking (Auto-registration)**
-Select option '2' from main menu
-Enter username and password (new account will be created)
-Choose "Book Room" option
-Enter personal details (password, phone number)
-Select room type and duration
-System auto-generates room number and calculates total cost
+- Select option '2' from main menu
+- Enter username and password (new account will be created)
+- Choose "Book Room" option
+- Enter personal details (password, phone number)
+- Select room type and duration
+- System auto-generates room number and calculates total cost
 
 **2. Returning Customer**
-Select option '2' from main menu
-Login with existing username and password
-Access your bookings and personal information
+- Select option '2' from main menu
+- Login with existing username and password
+- Access your bookings and personal information
 
 ## Data Storage - Customer.txt format
 Username,Password,PhoneNumber,RoomType,Days,RoomNumber,TotalCost
