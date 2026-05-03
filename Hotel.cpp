@@ -52,11 +52,10 @@ void vline(int n, char ch) {
     cout << endl;
 }
 
-// printHeader function
 void printHeader(string title) {
-    int boxWidth = 51;  // Fixed width of the box (including borders)
+    int boxWidth = 51;  
     int titleLength = title.length();
-    int paddingTotal = boxWidth - titleLength - 3;  // -4 for spaces and borders: "| " + " |"
+    int paddingTotal = boxWidth - titleLength - 3;  
     int leftPadding = paddingTotal / 2;
     int rightPadding = paddingTotal - leftPadding;
     
@@ -292,79 +291,7 @@ struct Admin {
 		// cout << "\n\t\t\t\t\t   ";
 		// system("pause");
 	};
-	// void viewAllBooking() {
-	// 	system("cls");
-	// 	printHeader("ALL BOOKINGS");
 
-	// 	ifstream admin;
-	// 	admin.open("customer.txt", ios::in);
-	// 	string line;
-	// 	int n = 7, m = 10;
-	// 	string** arr = new string * [m];
-	// 	for (int i = 0; i < m; i++) {
-	// 		// Declare a memory block
-	// 		// of size n
-	// 		arr[i] = new string[n];
-	// 	}
-	// 	if (!admin) {
-	// 		setColor(RED);
-    //         cout << "\n\t\t\t\t\t   ✗ File cannot be opened!\n";
-    //         setColor(RESET);
-    //         return;
-	// 	}
-	// 	setColor(CYAN);
-    //     cout << "\n\t\t\t\t   ╔══════════════════════════════════════════════════════════╗\n";
-    //     cout << "\t\t\t\t   ║                    BOOKED ROOMS LIST                      ║\n";
-    //     cout << "\t\t\t\t   ╚══════════════════════════════════════════════════════════╝\n\n";
-    //     setColor(RESET);
-	// 	int i = 0;
-	// 	while (getline(admin, line)) {
-	// 		stringstream ss(line);
-	// 		string name, pass, phone, room, day, roomNum, cost;
-	// 		getline(ss, name, ',');
-	// 		getline(ss, pass, ',');
-	// 		getline(ss, phone, ',');
-	// 		getline(ss, room, ',');
-	// 		getline(ss, day, ',');
-	// 		getline(ss, roomNum, ',');
-	// 		getline(ss, cost, ',');
-	// 		if (room == "1") {
-	// 			type = single.roomtype;
-	// 		}
-	// 		else if (room == "2") {
-	// 			type = doubles.roomtype;
-	// 		}
-	// 		else {
-	// 			type = family.roomtype;
-	// 		}
-
-	// 		arr[i][0] = name;
-	// 		arr[i][1] = room;
-	// 		arr[i][2] = type;
-	// 		arr[i][3] = day;
-	// 		arr[i][4] = roomNum;
-	// 		arr[i][5] = cost;
-	// 		i++;
-	// 	}
-	// 	for (int j = 0; j < i; j++) {
-	// 		setColor(YELLOW);
-	// 		cout << "\t\t\t\t   ┌────────────────────────────────────────────────────┐\n";
-    //         cout << "\t\t\t\t   │ Booking #" << bookingCount << string(42 - to_string(bookingCount).length(), ' ') << "│\n";
-    //         setColor(WHITE);
-	// 		cout << "\t\t\t\t   ├ Username 	: " << arr[j][0] << "│\n";
-	// 		cout << "\t\t\t\t   ├ Room Type: " << arr[j][1] << " - " << arr[j][2] << "│\n";
-	// 		cout << "\t\t\t\t   ├ Days of Stay: " << arr[j][3] << "│\n";
-	// 		cout << "\t\t\t\t   ├ Room Number: " << arr[j][4] << "│\n";
-	// 		setColor(GREEN);
-    //         cout << "\t\t\t\t   └ Cost (RM)   : " << setw(35) << cost << "│\n";
-    //         setColor(RESET);
-	// 		cout << endl;
-	// 	}
-	// 	for (int j = 0; j < i; j++)    //To delete the inner arrays
-	// 		delete[] arr[j];
-	// 	delete[] arr;
-	// 	admin.close();
-	// };
 	void updateBooking(string user) {
 		system("cls");
 		printHeader("UPDATE BOOKING");
@@ -972,10 +899,6 @@ void getDataForCustomer(string file, string loggedInUser) {
     cout << "\n\t\t\t\t       ";
     vline(43);
 
-    // int bookingCount = countCustomerBookings(loggedInUser);
-    // cout << "\n\t\t\t\t\t  You currently have " << bookingCount << " booking(s)" << endl;
-    
-    // Auto-use logged-in username
     c.name = loggedInUser;
     cout << "\n\t\t\t\t\t     Username: " << c.name << endl;
     
@@ -988,7 +911,6 @@ void getDataForCustomer(string file, string loggedInUser) {
         cin.getline(c.pw, 20);
 		userPassword = string(c.pw);
         
-        // Check if password matches existing record
         ifstream verify;
         verify.open("customer.txt", ios::in);
         string line;
@@ -1001,7 +923,6 @@ void getDataForCustomer(string file, string loggedInUser) {
             
             if (c.name == name && userPassword == pass) {
                 validPassword = true;
-                // Copy phone number from existing record
                 strcpy(c.phone_no, phone.c_str());
                 break;
             }
@@ -1025,13 +946,12 @@ void getDataForCustomer(string file, string loggedInUser) {
 	int bookingCount = countCustomerBookings(loggedInUser, userPassword);
     cout << "\n\t\t\t\t\t  You currently have " << bookingCount << " booking(s)" << endl;
     
-    // If customer already has a booking, ask if they want to add another
     if (bookingCount > 0) {
         char choice;
         cout << "\n\t\t\t\t\t     You already have " << bookingCount << " booking(s)." << endl;
         cout << "\t\t\t\t\t     Add another booking? (Y/N): ";
         cin >> choice;
-        cin.ignore(); // Clear newline
+        cin.ignore(); 
         
         if (toupper(choice) != 'Y') {
             cout << "\t\t\t\t\t     Booking cancelled." << endl;
@@ -1084,7 +1004,7 @@ int countCustomerBookings(string username, string password) {
     cust.open("customer.txt", ios::in);
     
     if (!cust) {
-        return 0; // File doesn't exist yet
+        return 0;
     }
     
     int count = 0;
