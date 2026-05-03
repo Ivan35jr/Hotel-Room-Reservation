@@ -8,10 +8,29 @@
 #include <ios>
 #include <algorithm>
 #include <cstring>
+#include <windows.h>
 
 using namespace std;
 
+void setColor(int color) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
+}
+
+// Color definitions
+#define RESET   7
+#define RED     12
+#define GREEN   10
+#define YELLOW  14
+#define BLUE    9
+#define CYAN    11
+#define WHITE   15
+#define MAGENTA 13
+
 void vline(int);
+void vline(int, char);
+void printHeader(string);
+void printDivider(char = '=', int = 50);
 void getDataForCustomer(string file, string loggedInUser);
 void getDataForAdmin(string file);
 int countCustomerBookings(string username, string password);
@@ -20,6 +39,44 @@ bool searchName(string);
 bool searchPw(char*);
 bool searchNameAndPassword(string, string); 
 int main();
+
+void vline(int n) {
+    for (int i = 0; i < n; i++)
+        cout << "=";
+    cout << endl;
+}
+
+void vline(int n, char ch) {
+    for (int i = 0; i < n; i++)
+        cout << ch;
+    cout << endl;
+}
+
+// printHeader function
+void printHeader(string title) {
+    int boxWidth = 51;  // Fixed width of the box (including borders)
+    int titleLength = title.length();
+    int paddingTotal = boxWidth - titleLength - 3;  // -4 for spaces and borders: "| " + " |"
+    int leftPadding = paddingTotal / 2;
+    int rightPadding = paddingTotal - leftPadding;
+    
+    setColor(CYAN);
+    cout << "\n\n\t\t\t\t   +" << string(boxWidth - 2, '-') << "+\n";
+    cout << "\t\t\t\t   |";
+    setColor(YELLOW);
+    cout << string(leftPadding, ' ') << title << string(rightPadding, ' ');
+    setColor(CYAN);
+    cout << "|\n";
+    cout << "\t\t\t\t   +" << string(boxWidth - 2, '-') << "+\n";
+    setColor(RESET);
+}
+
+void printDivider(char ch, int n) {
+    setColor(CYAN);
+    for (int i = 0; i < n; i++) cout << ch;
+    setColor(RESET);
+    cout << endl;
+}
 
 
 struct Room {
@@ -31,16 +88,36 @@ struct Room {
 
 public:
 	void showRoom() {
-		Room single = { 1, "Single Bedroom", 150.50 }, doubles = { 2, "Double Bedroom", 240.20 }, family = { 3, "Family Bedroom", 300.50 };
-		cout << "\n\n\t\t\t\t      ------------- ROOM INFORMATION -------------\n\n";
-		cout << "\t\t\t\t  _____________________________________________________\n";
-		cout << "\t\t\t\t |                                                     |\n";
-		cout << "\t\t\t\t |\tNo\t" << "Room Type" << "\t\tCost           |" << endl;
-		cout << "\t\t\t\t |\t---\t" << "----------" << "\t\t-----          |" << endl;
-		cout << "\t\t\t\t |\t1\t" << single.roomtype << "\t\t" << setprecision(2) << fixed << "RM" << single.cost << "       |\n";
-		cout << "\t\t\t\t |\t2\t" << doubles.roomtype << "\t\t" << setprecision(2) << fixed << "RM" << doubles.cost << "       |\n";
-		cout << "\t\t\t\t |\t3\t" << family.roomtype << "\t\t" << setprecision(2) << fixed << "RM" << family.cost << "       |\n";
-		cout << "\t\t\t\t |_____________________________________________________|\n";
+		Room single = { 1, "Single Bedroom", 150.50 }, 
+			doubles = { 2, "Double Bedroom", 240.20 }, 
+			family = { 3, "Family Bedroom", 300.50 };
+		
+		setColor(CYAN);
+		cout << "\n\n\t\t\t\t      +-------------------------------------------------+\n";
+		cout << "\t\t\t\t      |                ROOM INFORMATION                 |\n";
+		cout << "\t\t\t\t      +-------------------------------------------------+\n\n";
+		
+		setColor(WHITE);
+		cout << "\t\t\t\t  +-------------------------------------------------+\n";
+		cout << "\t\t\t\t  |                                                 |\n";
+		cout << "\t\t\t\t  |     No    Room Type              Cost (RM)      |\n";
+		cout << "\t\t\t\t  |     ---   ----------             --------       |\n";
+		
+		setColor(YELLOW);
+		cout << "\t\t\t\t  |      1    " << left << setw(25) << single.roomtype 
+			<< setprecision(2) << fixed << single.cost << "       |\n";
+		
+		setColor(GREEN);
+		cout << "\t\t\t\t  |      2    " << left << setw(25) << doubles.roomtype 
+			<< setprecision(2) << fixed << doubles.cost << "       |\n";
+		
+		setColor(MAGENTA);
+		cout << "\t\t\t\t  |      3    " << left << setw(25) << family.roomtype 
+			<< setprecision(2) << fixed << family.cost << "       |\n";
+		
+		setColor(WHITE);
+		cout << "\t\t\t\t  +-------------------------------------------------+\n";
+		setColor(RESET);
 	}
 
 }single = { 1, "Single Bedroom", 150.50 }, doubles = { 2, "Double Bedroom", 240.20 }, family = { 3, "Family Bedroom", 300.50 };
@@ -50,25 +127,30 @@ struct Admin {
 	char phone_no[12], pw[20];
 	string name;
 	string type, file;
+
 	void bookRoom() {
 		file = "customer.txt";
 		system("cls");
 		r.showRoom();
 		getDataForAdmin(file);
 	};
+
 	void searchBooking(string user) {
 		system("cls");
+		printHeader("SEARCH BOOKING INFORMATION");
+
 		ifstream admin;
 		admin.open("customer.txt", ios::in);
 		if (!admin) {
-			cout << "File cannot be open" << endl;
+			setColor(RED);
+            cout << "\n\t\t\t\t\t   X File cannot be opened!\n";
+            setColor(RESET);
+			return;
 		}
 		else {
 			string line;
 			bool found = false;
 			int bookingCount = 0;
-			
-			cout << "\n\n\t\t\t\t        ------ USER(S) ROOM INFORMATION ------\n\n";
 			
 			while (getline(admin, line)) {
 				stringstream ss(line);
@@ -84,70 +166,84 @@ struct Admin {
 				if (user == name) {
 					if (!found) {
 						found = true;
+						setColor(CYAN);
+                        cout << "\n\t\t\t\t\t   +-------------------------------------------------+\n";
+                        cout << "\t\t\t\t\t   |                BOOKING DETAILS                  |\n";
+                        cout << "\t\t\t\t\t   +-------------------------------------------------+\n";
+                        setColor(RESET);
 					}
 					
 					bookingCount++;
-					cout << "\t\t\t\t\t   ----- Booking #" << bookingCount << " -----" << endl;
-					cout << "\t\t\t\t\t";
-					vline(36);
-					cout << "\t\t\t\t\t   Username: " << name << endl;
-					cout << "\t\t\t\t\t   Password: " << pw << endl;
-					cout << "\t\t\t\t\t   Phone Number: " << phone << endl;
+					setColor(YELLOW);
+                    cout << "\n\t\t\t\t\t   =========== Booking #" << bookingCount << " ===========\n";
+                    setColor(WHITE);
+                    cout << "\t\t\t\t\t   | Username    : " << name << endl;
+                    cout << "\t\t\t\t\t   | Password    : " << pw << endl;
+                    cout << "\t\t\t\t\t   | Phone       : " << phone << endl;
 					
 					if (room == "1") {
 						type = single.roomtype;
+						setColor(GREEN);
 					}
 					else if (room == "2") {
 						type = doubles.roomtype;
+						setColor(YELLOW);
 					}
 					else {
 						type = family.roomtype;
+						setColor(MAGENTA);
 					}
 					
-					cout << "\t\t\t\t\t   Room Type: " << room << " - " << type << endl;
-					cout << "\t\t\t\t\t   Days of Stay: " << day << endl;
-					cout << "\t\t\t\t\t   Room Number: " << roomNum << endl;
-					cout << "\t\t\t\t\t   Cost of Stay(RM): " << cost << endl;
-					cout << "\n\t\t\t\t\t";
-					vline(36);
-					cout << endl;
-					// Don't break - continue searching for more records with same name
+					cout << "\t\t\t\t\t   | Room Type   : " << room << " - " << type << endl;
+                    setColor(WHITE);
+                    cout << "\t\t\t\t\t   | Days Stay   : " << day << endl;
+                    cout << "\t\t\t\t\t   | Room Number : " << roomNum << endl;
+                    setColor(GREEN);
+                    cout << "\t\t\t\t\t   | Total Cost  : RM " << cost << endl;
+                    setColor(RESET);
+                    cout << "\t\t\t\t\t   +-------------------------------------------------+\n";
 				}
 			}
 			
 			if (!found) {
-				cout << "\t\t\t\t\t   No booking records found for: " << user << endl;
-				cout << "\t\t\t\t\t";
-				vline(36);
+				setColor(RED);
+				cout << "\n\t\t\t\t\t   X No booking records found for: " << user << endl;
+				setColor(RESET);
 			} else {
-				cout << "\t\t\t\t\t   Total Bookings Found: " << bookingCount << endl;
-				cout << "\t\t\t\t\t";
-				vline(36);
+				setColor(CYAN);
+				cout << "\n\t\t\t\t\t   +-------------------------------------------------+\n";
+                cout << "\t\t\t\t\t   |           Total Bookings Found: " << bookingCount << "                |\n";
+                cout << "\t\t\t\t\t   +-------------------------------------------------+\n";
+				setColor(RESET);
 			}
 		}
 		admin.close();
 		cout << "\t\t\t\t\t   ";
 		system("pause");
 	};
+
 	void viewAllBooking() {
 		system("cls");
+		printHeader("ALL BOOKINGS");
+		
 		ifstream admin;
 		admin.open("customer.txt", ios::in);
-		string line;
-		int n = 7, m = 10;
-		string** arr = new string * [m];
-		for (int i = 0; i < m; i++) {
-			// Declare a memory block
-			// of size n
-			arr[i] = new string[n];
-		}
 		if (!admin) {
-			cout << "File cannot be open" << endl;
+			setColor(RED);
+			cout << "\n\t\t\t\t\t   X File cannot be opened!\n";
+			setColor(RESET);
+			return;
 		}
-		cout << "\n\n\t\t\t\t       ------ BOOKED ROOM INFORMATION ------";
-		cout << "\n\n\t\t\t\t\t";
-		vline(35);
-		int i = 0;
+		
+		string line;
+		int bookingCount = 0;
+		
+		setColor(CYAN);
+		cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+		cout << "\t\t\t\t   |                 BOOKED ROOMS LIST                 |\n";
+		cout << "\t\t\t\t   +---------------------------------------------------+\n\n";
+		setColor(RESET);
+		
 		while (getline(admin, line)) {
 			stringstream ss(line);
 			string name, pass, phone, room, day, roomNum, cost;
@@ -158,46 +254,129 @@ struct Admin {
 			getline(ss, day, ',');
 			getline(ss, roomNum, ',');
 			getline(ss, cost, ',');
-			if (room == "1") {
-				type = single.roomtype;
-			}
-			else if (room == "2") {
-				type = doubles.roomtype;
-			}
-			else {
-				type = family.roomtype;
-			}
-
-			arr[i][0] = name;
-			arr[i][1] = room;
-			arr[i][2] = type;
-			arr[i][3] = day;
-			arr[i][4] = roomNum;
-			arr[i][5] = cost;
-			i++;
+			
+			bookingCount++;
+			
+			if (room == "1") type = single.roomtype;
+			else if (room == "2") type = doubles.roomtype;
+			else type = family.roomtype;
+			
+			setColor(YELLOW);
+			cout << "\t\t\t\t   +---------------------------------------------------+\n";
+			cout << "\t\t\t\t   | Booking #" << bookingCount << string(41 - to_string(bookingCount).length(), ' ') << "|\n";
+			setColor(WHITE);
+			cout << "\t\t\t\t   | Username    : " << left << setw(35) << name << "|\n";
+			cout << "\t\t\t\t   | Room Type   : " << setw(35) << (room + " - " + type) << "|\n";
+			cout << "\t\t\t\t   | Days Stay   : " << setw(35) << day << "|\n";
+			cout << "\t\t\t\t   | Room Number : " << setw(35) << roomNum << "|\n";
+			setColor(GREEN);
+			cout << "\t\t\t\t   | Cost (RM)   : " << setw(35) << cost << "|\n";
+			setColor(RESET);
+			cout << "\t\t\t\t   +---------------------------------------------------+\n";
+			cout << endl;
 		}
-		for (int j = 0; j < i; j++) {
-			cout << "\t\t\t\t\t   Username: " << arr[j][0] << endl;
-			cout << "\t\t\t\t\t   Room Type: " << arr[j][1] << " - " << arr[j][2] << endl;
-			cout << "\t\t\t\t\t   Days of Stay: " << arr[j][3] << endl;
-			cout << "\t\t\t\t\t   Room Number: " << arr[j][4] << endl;
-			cout << "\t\t\t\t\t   Cost of Stay(RM): " << arr[j][5] << endl;
-			cout << "\n\t\t\t\t\t";
-			vline(35);
+		
+		if (bookingCount == 0) {
+			setColor(RED);
+			cout << "\t\t\t\t\t   X No bookings found!\n";
+			setColor(RESET);
+		} else {
+			setColor(CYAN);
+			cout << "\t\t\t\t   +---------------------------------------------------+\n";
+			cout << "\t\t\t\t   |                Total: " << bookingCount << " booking(s)              |\n";
+			cout << "\t\t\t\t   +---------------------------------------------------+\n";
+			setColor(RESET);
 		}
-		for (int j = 0; j < i; j++)    //To delete the inner arrays
-			delete[] arr[j];
-		delete[] arr;
+		
 		admin.close();
+		// cout << "\n\t\t\t\t\t   ";
+		// system("pause");
 	};
+	// void viewAllBooking() {
+	// 	system("cls");
+	// 	printHeader("ALL BOOKINGS");
+
+	// 	ifstream admin;
+	// 	admin.open("customer.txt", ios::in);
+	// 	string line;
+	// 	int n = 7, m = 10;
+	// 	string** arr = new string * [m];
+	// 	for (int i = 0; i < m; i++) {
+	// 		// Declare a memory block
+	// 		// of size n
+	// 		arr[i] = new string[n];
+	// 	}
+	// 	if (!admin) {
+	// 		setColor(RED);
+    //         cout << "\n\t\t\t\t\t   ✗ File cannot be opened!\n";
+    //         setColor(RESET);
+    //         return;
+	// 	}
+	// 	setColor(CYAN);
+    //     cout << "\n\t\t\t\t   ╔══════════════════════════════════════════════════════════╗\n";
+    //     cout << "\t\t\t\t   ║                    BOOKED ROOMS LIST                      ║\n";
+    //     cout << "\t\t\t\t   ╚══════════════════════════════════════════════════════════╝\n\n";
+    //     setColor(RESET);
+	// 	int i = 0;
+	// 	while (getline(admin, line)) {
+	// 		stringstream ss(line);
+	// 		string name, pass, phone, room, day, roomNum, cost;
+	// 		getline(ss, name, ',');
+	// 		getline(ss, pass, ',');
+	// 		getline(ss, phone, ',');
+	// 		getline(ss, room, ',');
+	// 		getline(ss, day, ',');
+	// 		getline(ss, roomNum, ',');
+	// 		getline(ss, cost, ',');
+	// 		if (room == "1") {
+	// 			type = single.roomtype;
+	// 		}
+	// 		else if (room == "2") {
+	// 			type = doubles.roomtype;
+	// 		}
+	// 		else {
+	// 			type = family.roomtype;
+	// 		}
+
+	// 		arr[i][0] = name;
+	// 		arr[i][1] = room;
+	// 		arr[i][2] = type;
+	// 		arr[i][3] = day;
+	// 		arr[i][4] = roomNum;
+	// 		arr[i][5] = cost;
+	// 		i++;
+	// 	}
+	// 	for (int j = 0; j < i; j++) {
+	// 		setColor(YELLOW);
+	// 		cout << "\t\t\t\t   ┌────────────────────────────────────────────────────┐\n";
+    //         cout << "\t\t\t\t   │ Booking #" << bookingCount << string(42 - to_string(bookingCount).length(), ' ') << "│\n";
+    //         setColor(WHITE);
+	// 		cout << "\t\t\t\t   ├ Username 	: " << arr[j][0] << "│\n";
+	// 		cout << "\t\t\t\t   ├ Room Type: " << arr[j][1] << " - " << arr[j][2] << "│\n";
+	// 		cout << "\t\t\t\t   ├ Days of Stay: " << arr[j][3] << "│\n";
+	// 		cout << "\t\t\t\t   ├ Room Number: " << arr[j][4] << "│\n";
+	// 		setColor(GREEN);
+    //         cout << "\t\t\t\t   └ Cost (RM)   : " << setw(35) << cost << "│\n";
+    //         setColor(RESET);
+	// 		cout << endl;
+	// 	}
+	// 	for (int j = 0; j < i; j++)    //To delete the inner arrays
+	// 		delete[] arr[j];
+	// 	delete[] arr;
+	// 	admin.close();
+	// };
 	void updateBooking(string user) {
 		system("cls");
+		printHeader("UPDATE BOOKING");
+
 		ifstream admin;
 		ofstream temp;
 		file = "temp.txt";
 		admin.open("customer.txt", ios::in);
 		temp.open("temp.txt", ios::out | ios::app);
 		string line;
+		bool found = false;
+
 		while (getline(admin, line)) {
 			stringstream ss(line);
 			string name, pw, phone, room, day, roomNum, cost;
@@ -209,10 +388,16 @@ struct Admin {
 			getline(ss, roomNum, ',');
 			getline(ss, cost, ',');
 			if (user == name) {
-				cout << "\n\n\t\t\t\t\t------ USER BOOKING INFORMATION ------\n\n";
-				cout << "\t\t\t\t\t   Username: " << name << endl;
-				cout << "\t\t\t\t\t   Password: " << pw << endl;
-				cout << "\t\t\t\t\t   Phone Number: " << phone << endl;
+				found = true;
+				setColor(CYAN);
+                cout << "\n\t\t\t\t\t   +-------------------------------------------------+\n";
+                cout << "\t\t\t\t\t   |              CURRENT BOOKING DETAILS            |\n";
+                cout << "\t\t\t\t\t   +-------------------------------------------------+\n";
+                setColor(WHITE);
+                cout << "\t\t\t\t\t   | Username    : " << name << endl;
+                cout << "\t\t\t\t\t   | Password    : " << pw << endl;
+                cout << "\t\t\t\t\t   | Phone No.   : " << phone << endl;
+
 				if (room == "1") {
 					type = single.roomtype;
 				}
@@ -222,31 +407,50 @@ struct Admin {
 				else {
 					type = family.roomtype;
 				}
-				cout << "\t\t\t\t\t   Room Type: " << room << " - " << type << endl;
-				cout << "\t\t\t\t\t   Days of Stay: " << day << endl;
-				cout << "\t\t\t\t\t   Room Number: " << roomNum << endl;
-				cout << "\t\t\t\t\t   Cost of Stay(RM): " << cost << endl;
-				cout << "\n\t\t\t\t\t--------------------------------------";
-				cout << "\n\t\t\t\t\t      Press enter to continue....";
-				getDataForAdmin(file); 
-				cout << "\n\t\t\t\t\t     Booking Contents Modified....\n\n";
+				cout << "\t\t\t\t\t   | Room Type   : " << room << " - " << type << endl;
+                cout << "\t\t\t\t\t   | Days Stay   : " << day << endl;
+                cout << "\t\t\t\t\t   | Room Number : " << roomNum << endl;
+                setColor(GREEN);
+                cout << "\t\t\t\t\t   | Cost (RM)   : " << cost << endl;
+                setColor(RESET);
+                cout << "\t\t\t\t\t   +-------------------------------------------------+\n";
+                
+                cout << "\n\t\t\t\t\t   ";
+                vline(43, '-');
+                cout << "\n\t\t\t\t\t   Press Enter to continue with update...";
+                getDataForAdmin(file);
+                setColor(GREEN);
+                cout << "\n\t\t\t\t\t   * Booking Contents Modified Successfully!\n";
+                setColor(RESET);
 			}
 			else {
 				temp << name << "," << pw << "," << phone << "," << room << "," << day << "," << roomNum << "," << cost << "\n";
 			}
 		}
+		if (!found) {
+            setColor(RED);
+            cout << "\n\t\t\t\t\t   X No booking found for: " << user << endl;
+            setColor(RESET);
+        }
+
 		admin.close();
 		temp.close();
 		remove("customer.txt");
 		rename("temp.txt", "customer.txt");
 		system("pause");
 	};
+
 	void deleteBooking(string user) {
+		system("cls");
+        printHeader("DELETE BOOKING");
+
 		ifstream admin;
 		ofstream temp;
 		admin.open("customer.txt", ios::in);
 		temp.open("temp.txt", ios::out | ios::app);
 		string line;
+		bool deleted = false;
+
 		while (getline(admin, line)) {
 			stringstream ss(line);
 			string name, pw, phone, room, day, roomNum, cost;
@@ -261,9 +465,22 @@ struct Admin {
 				temp << name << "," << pw << "," << phone << "," << room << "," << day << "," << roomNum << "," << cost << "\n";
 			}
 			else {
-				cout << "\n\t\tRecord deleted" << endl;
+				deleted = true;
+                setColor(YELLOW);
+                cout << "\n\t\t\t\t\t   +-------------------------------------------------+\n";
+                cout << "\t\t\t\t\t   |                 BOOKING DELETED                   |\n";
+                cout << "\t\t\t\t\t   +-------------------------------------------------+\n";
+                setColor(GREEN);
+                cout << "\t\t\t\t\t   * Record for '" << name << "' has been deleted.\n";
+                setColor(RESET);
 			}
 		}
+		if (!deleted) {
+            setColor(RED);
+            cout << "\n\t\t\t\t\t   X No booking found for: " << user << endl;
+            setColor(RESET);
+        }
+
 		admin.close();
 		temp.close();
 		remove("customer.txt");
@@ -274,31 +491,35 @@ struct Admin {
 };
 
 struct Customer {
-	Room r;
-	char pw[20];
-	char phone_no[12];
-	string name;
-	string file, type = " ";
-	void bookRoom(string user) {  
+    Room r;
+    char pw[20];
+    char phone_no[12];
+    string name;
+    string file, type = " ";
+    
+    void bookRoom(string user) {  
         file = "customer.txt";
         system("cls");
         r.showRoom();
         getDataForCustomer(file, user); 
     };
 
-	void viewBookedRoom(string user, string userPw) {
+    void viewBookedRoom(string user, string userPw) {
         system("cls");
+        printHeader("YOUR BOOKING INFORMATION");
+        
         ifstream cust;
         cust.open("customer.txt", ios::in);
         if (!cust) {
-            cout << "File cannot be open" << endl;
+            setColor(RED);
+            cout << "\n\t\t\t\t\t   X File cannot be opened!\n";
+            setColor(RESET);
+            return;
         }
         
         string line;
         int bookingCount = 0;
         bool hasBookings = false;
-        
-        cout << "\n\n\t\t\t\t       ------ YOUR BOOKING INFORMATION ------\n\n";
         
         while (getline(cust, line)) {
             stringstream ss(line);
@@ -314,79 +535,120 @@ struct Customer {
             if (user == name && userPw == pw) {
                 if (!hasBookings) {
                     hasBookings = true;
-                    cout << "\t\t\t\t     ";
-                    vline(42);
+                    setColor(CYAN);
+                    cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+                    cout << "\t\t\t\t   |                    BOOKINGS                       |\n";
+                    cout << "\t\t\t\t   +---------------------------------------------------+\n";
+                    setColor(RESET);
                 }
                 
                 bookingCount++;
-                cout << "\n\t\t\t\t\t   ----- Booking #" << bookingCount << " -----" << endl;
+                
+                setColor(YELLOW);
+                cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+                cout << "\t\t\t\t   | Booking #" << bookingCount << string(40 - to_string(bookingCount).length(), ' ') << "|\n";
+                setColor(WHITE);
                 
                 if (room == "1") {
                     type = single.roomtype;
+                    setColor(GREEN);
                 }
                 else if (room == "2") {
                     type = doubles.roomtype;
+                    setColor(YELLOW);
                 }
                 else {
                     type = family.roomtype;
+                    setColor(MAGENTA);
                 }
                 
-                cout << "\t\t\t\t\t   Room Type: " << room << " - " << type << endl;
-                cout << "\t\t\t\t\t   Days of Stay: " << day << endl;
-                cout << "\t\t\t\t\t   Room Number: " << roomNum << endl;
-                cout << "\t\t\t\t\t   Cost of Stay(RM): " << cost << endl;
+                cout << "\t\t\t\t   | Room Type   : " << room << " - " << type << string(35 - (room + " - " + type).length(), ' ') << "|\n";
+                setColor(WHITE);
+                cout << "\t\t\t\t   | Days Stay   : " << day << string(35 - to_string(stoi(day)).length(), ' ') << "|\n";
+                cout << "\t\t\t\t   | Room Number : " << roomNum << string(35 - roomNum.length(), ' ') << "|\n";
+                setColor(GREEN);
+                cout << "\t\t\t\t   | Cost (RM)   : " << cost << string(35 - cost.length(), ' ') << "|\n";
+                setColor(RESET);
+                cout << "\t\t\t\t   +---------------------------------------------------+\n";
             }
         }
         
         if (hasBookings) {
-            cout << "\n\t\t\t\t\t   -------------------------" << endl;
-            cout << "\t\t\t\t\t   Total Bookings: " << bookingCount << endl;
-            cout << "\n\t\t\t\t     ";
-            vline(42);
+            setColor(CYAN);
+            cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+            cout << "\t\t\t\t   |               Total Bookings: " << bookingCount << string(20 - to_string(bookingCount).length(), ' ') << "|\n";
+            cout << "\t\t\t\t   +---------------------------------------------------+\n";
+            setColor(RESET);
         } else {
-            cout << "\t\t\t\t\t   No bookings found." << endl;
-            cout << "\t\t\t\t     ";
-            vline(42);
+            setColor(RED);
+            cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+            cout << "\t\t\t\t   |                  NO BOOKINGS FOUND                |\n";
+            cout << "\t\t\t\t   +---------------------------------------------------+\n";
+            setColor(RESET);
         }
         
         cust.close();
+        cout << "\n\t\t\t\t\t   ";
+        system("pause");
     }
-	void viewInfo(string user, string userPw) {
-		system("cls");
-		ifstream cust;
-		cust.open("customer.txt", ios::in);
-		if (!cust) {
-			cout << "File cannot be open" << endl;
-		}
-		string line;
-		bool found = false;
-		while (getline(cust, line)) {
-			stringstream ss(line);
-			string name, pw, phone;
-			getline(ss, name, ',');
-			getline(ss, pw, ',');
-			getline(ss, phone, ',');
-			if (user == name && userPw == pw) {
-				cout << "\n\n\t\t\t\t       ------ USER PERSONAL INFORMATION ------\n\n";
-				cout << "\t\t\t\t      ";
-				vline(41);
-				cout << "\n\t\t\t\t\t     Username: " << name << endl;
-				cout << "\t\t\t\t\t     Password: " << pw << endl;
-				cout << "\t\t\t\t\t     Phone Number: " << phone << "\n\n";
-				cout << "\t\t\t\t      ";
-				vline(41);
-				break;
-			}
-		}
-
-		if (!found) {
-			cout << "\n\t\t\t\t      No personal information found." << endl;
-		}
-		cust.close();
-	};
+    
+    void viewInfo(string user, string userPw) {
+        system("cls");
+        printHeader("YOUR PERSONAL INFORMATION");
+        
+        ifstream cust;
+        cust.open("customer.txt", ios::in);
+        if (!cust) {
+            setColor(RED);
+            cout << "\n\t\t\t\t\t   X File cannot be opened!\n";
+            setColor(RESET);
+            return;
+        }
+        
+        string line;
+        bool found = false;
+        
+        setColor(CYAN);
+        cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+        cout << "\t\t\t\t   |                 ACCOUNT DETAILS                   |\n";
+        cout << "\t\t\t\t   +---------------------------------------------------+\n";
+        setColor(RESET);
+        
+        while (getline(cust, line)) {
+            stringstream ss(line);
+            string name, pw, phone;
+            getline(ss, name, ',');
+            getline(ss, pw, ',');
+            getline(ss, phone, ',');
+            
+            if (user == name && userPw == pw) {
+                found = true;
+                setColor(WHITE);
+                cout << "\t\t\t\t   | Username     : " << left << setw(35) << name << "|\n";
+                cout << "\t\t\t\t   | Password     : " << setw(35) << pw << "|\n";
+                setColor(GREEN);
+                cout << "\t\t\t\t   | Phone Number : " << setw(35) << phone << "|\n";
+                setColor(RESET);
+                break;
+            }
+        }
+        
+        if (!found) {
+            setColor(RED);
+            cout << "\t\t\t\t   |                                                       |\n";
+            cout << "\t\t\t\t   |            NO PERSONAL INFORMATION FOUND             |\n";
+            setColor(RESET);
+        }
+        
+        setColor(CYAN);
+        cout << "\t\t\t\t   +---------------------------------------------------+\n";
+        setColor(RESET);
+        
+        cust.close();
+        cout << "\n\t\t\t\t\t   ";
+        system("pause");
+    };
 };
-
-
 
 void adminMenu() {
 	Admin a;
@@ -394,101 +656,161 @@ void adminMenu() {
 	string user;
 	do {
 		system("cls");
-		cout << "\n\n\t\t\t\t ___________________ ADMIN VIEW ___________________\n";
-		cout << "\t\t\t\t|                                                  |\n";
-		cout << "\t\t\t\t|       [NO.]  |  [Function]                       |\n";
-		cout << "\t\t\t\t|        [1]   |   Book Room                       |\n";
-		cout << "\t\t\t\t|        [2]   |   Search Booking Information      |\n";
-		cout << "\t\t\t\t|        [3]   |   View All Bookings               |\n";
-		cout << "\t\t\t\t|        [4]   |   Update Bookings                 |\n";
-		cout << "\t\t\t\t|        [5]   |   Delete Booking                  |\n";
-		cout << "\t\t\t\t|        [6]   |   Exit                            |\n";
-		cout << "\t\t\t\t|__________________________________________________|\n\n";
-		cout << "\t\t\t\t\t\tOption> ";
+		setColor(CYAN);
+        cout << "\n\n\t\t\t\t   +---------------------------------------------------+\n";
+        cout << "\t\t\t\t   |                   ADMIN VIEW                      |\n";
+        cout << "\t\t\t\t   +---------------------------------------------------+\n";
+        cout << "\t\t\t\t   |       [NO.]  |  [Function]                       |\n";
+        cout << "\t\t\t\t   |        [1]   |   Book Room                       |\n";
+        cout << "\t\t\t\t   |        [2]   |   Search Booking Information      |\n";
+        cout << "\t\t\t\t   |        [3]   |   View All Bookings               |\n";
+        cout << "\t\t\t\t   |        [4]   |   Update Bookings                 |\n";
+        cout << "\t\t\t\t   |        [5]   |   Delete Booking                  |\n";
+        cout << "\t\t\t\t   |        [6]   |   Exit                            |\n";
+        cout << "\t\t\t\t   +---------------------------------------------------+\n\n";
+        setColor(RESET);
+        
+        cout << "\t\t\t\t   Option> ";
 		cin >> ch;
 		switch (ch) {
-		case '1':
-			a.bookRoom();
-			cout << "\t\t\t\t\t    ";
-			system("pause");
-			break;
-		case '2':
-			cin.ignore();
-			cout << "\n\t\tEnter the Name to Search: ";
-			getline(cin, user);
-			transform(user.begin(), user.end(), user.begin(), ::toupper);
-			if (searchName(user)) {
-				a.searchBooking(user);
-			}
-			else {
-				cout << "\n\t\tBooking Do Not Exist." << endl;
-				cout << "\n\t\t";
+			case '1':
+				a.bookRoom();
 				system("pause");
+				break;
+			case '2': {
+				cin.ignore();
+				setColor(YELLOW);
+				cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+				cout << "\t\t\t\t   |                SEARCH CUSTOMER                    |\n";
+				cout << "\t\t\t\t   +---------------------------------------------------+\n";
+				setColor(WHITE);
+				cout << "\t\t\t\t   | Enter Name to Search: ";
+				getline(cin, user);
+				transform(user.begin(), user.end(), user.begin(), ::toupper);
+				cout << "\t\t\t\t   +---------------------------------------------------+\n";
+				setColor(RESET);
+				
+				if (searchName(user)) {
+					a.searchBooking(user);
+				} else {
+					setColor(RED);
+					cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+					cout << "\t\t\t\t   |              BOOKING DOES NOT EXIST!              |\n";
+					cout << "\t\t\t\t   +---------------------------------------------------+\n";
+					setColor(RESET);
+					system("pause");
+				}
+				break;
 			}
-			break;
-
-		case '3':
-			a.viewAllBooking();
-			cout << "\t\t\t\t\t  ";
-			system("pause");
-			break;
-
-		case '4':
-			cin.ignore();
-			cout << "\n\t\tEnter the Name to Search: ";
-			getline(cin, user);
-			transform(user.begin(), user.end(), user.begin(), ::toupper);
-			if (searchName(user)) {
-				a.updateBooking(user);
-			}
-			else {
-				cout << "\n\t\tBooking Do Not Exist." << endl;
-				cout << "\n\t\t";
+			case '3':
+				a.viewAllBooking();
+				cout << "\t\t\t\t\t  ";
 				system("pause");
+				break;
+			case '4': {
+				cin.ignore();
+				setColor(YELLOW);
+				cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+				cout << "\t\t\t\t   |                UPDATE BOOKING                     |\n";
+				cout << "\t\t\t\t   +---------------------------------------------------+\n";
+				setColor(WHITE);
+				cout << "\t\t\t\t   | Enter Name to Search: ";
+				getline(cin, user);
+				transform(user.begin(), user.end(), user.begin(), ::toupper);
+				cout << "\t\t\t\t   +---------------------------------------------------+\n";
+				setColor(RESET);
+				
+				if (searchName(user)) {
+					a.updateBooking(user);
+				} else {
+					setColor(RED);
+					cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+					cout << "\t\t\t\t   |              BOOKING DOES NOT EXIST!              |\n";
+					cout << "\t\t\t\t   +---------------------------------------------------+\n";
+					setColor(RESET);
+					system("pause");
+				}
+				break;
 			}
-			break;
-
-		case '5':
-			cin.ignore();
-			cout << "\n\t\tEnter the Name to Search: ";
-			getline(cin, user);
-			transform(user.begin(), user.end(), user.begin(), ::toupper);
-			if (searchName(user)) {
-				a.deleteBooking(user);
+			case '5': {
+				cin.ignore();
+				setColor(YELLOW);
+				cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+				cout << "\t\t\t\t   |                DELETE BOOKING                     |\n";
+				cout << "\t\t\t\t   +---------------------------------------------------+\n";
+				setColor(WHITE);
+				cout << "\t\t\t\t   | Enter Name to Search: ";
+				getline(cin, user);
+				transform(user.begin(), user.end(), user.begin(), ::toupper);
+				cout << "\t\t\t\t   +---------------------------------------------------+\n";
+				setColor(RESET);
+				
+				if (searchName(user)) {
+					a.deleteBooking(user);
+				} else {
+					setColor(RED);
+					cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+					cout << "\t\t\t\t   |              BOOKING DOES NOT EXIST!              |\n";
+					cout << "\t\t\t\t   +---------------------------------------------------+\n";
+					setColor(RESET);
+					system("pause");
+				}
+				break;
 			}
-			else {
-				cout << "\n\t\tBooking Do Not Exist." << endl;
-				cout << "\n\t\t";
+			case '6':
+				setColor(GREEN);
+				cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+				cout << "\t\t\t\t   |              EXITING ADMIN MENU...                |\n";
+				cout << "\t\t\t\t   +---------------------------------------------------+\n";
+				setColor(RESET);
+				break;
+			default:
+				setColor(RED);
+				cout << "\n\n\t\t\t\t   +---------------------------------------------------+\n";
+				cout << "\t\t\t\t   |                 INVALID CHOICE!                   |\n";
+				cout << "\t\t\t\t   +---------------------------------------------------+\n";
+				setColor(RESET);
 				system("pause");
+				break;
 			}
-			break;
-		case '6':
-			break;
-		default:
-			cout << "\n\n\t\t\t\t\t       Invalid Choices...." << endl;
-			cout << "\n\t\t\t\t\t   ";
-			system("pause");
-			break;
-		}
-	} while (ch != '6');
+		} while (ch != '6');
 }
 
 void custMenu(string name, string password) {
     Customer c;
     char ch;
+	int boxWidth = 51;
     do {
         system("cls");
-        cout << "\n\n\t\t\t\t\t    @@@@@@ HOTEL DEL LUNA @@@@@@";
-        cout << "\n\n\t\t\t\t>> WELCOME, \"" << name << "\" !" << endl;
-        cout << "\t\t\t\t __________________________________________________\n";
-        cout << "\t\t\t\t|                                                  |\n";
-        cout << "\t\t\t\t|       [NO.]  |  [Function]                       |\n";
-        cout << "\t\t\t\t|        [1]   |   Book Room                       |\n";
-        cout << "\t\t\t\t|        [2]   |   View Booking Information        |\n";
-        cout << "\t\t\t\t|        [3]   |   View Personal Info              |\n";
-        cout << "\t\t\t\t|        [4]   |   Exit                            |\n";
-        cout << "\t\t\t\t|__________________________________________________|\n\n";
-        cout << "\t\t\t\t\t\tOption> ";
+        setColor(CYAN);
+        cout << "\n\n\t\t\t\t   +---------------------------------------------------+\n";
+        cout << "\t\t\t\t   |                  HOTEL DEL LUNA                   |\n";
+        cout << "\t\t\t\t   +---------------------------------------------------+\n";
+        string welcomeMsg = "WELCOME, \"" + name + "\" !";
+        int msgLength = welcomeMsg.length();
+        int paddingTotal = boxWidth - msgLength - 2; 
+        int leftPadding = paddingTotal / 2;
+        int rightPadding = paddingTotal - leftPadding;
+        
+        setColor(CYAN);
+        cout << "\n\n\t\t\t\t   +" << string(boxWidth - 2, '-') << "+\n";
+        cout << "\t\t\t\t   |" << string(boxWidth - 2, ' ') << "|\n";
+        cout << "\t\t\t\t   |";
+        setColor(YELLOW);
+        cout << string(leftPadding, ' ') << welcomeMsg << string(rightPadding, ' ');
+        setColor(CYAN);
+		cout << "|\n";
+        cout << "\t\t\t\t   |" << string(boxWidth - 2, ' ') << "|\n";
+        cout << "\t\t\t\t   +---------------------------------------------------+\n";
+        cout << "\t\t\t\t   |       [NO.]  |  [Function]                       |\n";
+        cout << "\t\t\t\t   |        [1]   |   Book Room                       |\n";
+        cout << "\t\t\t\t   |        [2]   |   View Booking Information        |\n";
+        cout << "\t\t\t\t   |        [3]   |   View Personal Info              |\n";
+        cout << "\t\t\t\t   |        [4]   |   Exit                            |\n";
+        cout << "\t\t\t\t   +---------------------------------------------------+\n\n";
+        setColor(RESET);
+        
+        cout << "\t\t\t\t   Option> ";
         cin >> ch;
         switch (ch) {
         case '1':
@@ -498,21 +820,21 @@ void custMenu(string name, string password) {
             break;
         case '2':
             c.viewBookedRoom(name, password);
-            cout << "\t\t\t\t\t   ";
-            system("pause");
             custMenu(name, password);
             break;
         case '3':
             c.viewInfo(name, password);
-            cout << "\t\t\t\t\t   ";
-            system("pause");
             custMenu(name, password);
             break;
         case '4':
             main();
             break;
         default:
-            cout << "\n\n\t\t\t\t\t\tInvalid Choices" << endl;
+			setColor(RED);
+			cout << "\n\n\t\t\t\t   +---------------------------------------------------+\n";
+			cout << "\t\t\t\t   |                 INVALID CHOICE!                   |\n";
+			cout << "\t\t\t\t   +---------------------------------------------------+\n";
+			setColor(RESET);
             system("pause");
             break;
         }
@@ -520,68 +842,100 @@ void custMenu(string name, string password) {
 }
 
 int main() {
-	system("Color 03");
-	srand(time(0));
-	char ch;
-	string user;
-	char pw[40];
-	do {
-		system("cls");
-		cout << "\n\n\t\t\t@@@@@@@@@@@@@@@@@@@@@@ HOTEL DEL LUNA @@@@@@@@@@@@@@@@@@@@@@@\n";
-		cout << "\t\t\t@                                                           @\n";
-		cout << "\t\t\t@                                                           @\n";
-		cout << "\t\t\t@        Welcome to use our Room Reservation Service,       @\n";
-		cout << "\t\t\t@          Please choose the view to proceed next.          @\n";
-		cout << "\t\t\t@                  Have a nice day to you :)                @\n";
-		cout << "\t\t\t@                                                           @\n";
-		cout << "\t\t\t@                 -------------------------                 @\n";
-		cout << "\t\t\t@                   | 1 |  Admin View                       @\n";
-		cout << "\t\t\t@                   | 2 |  Customer View                    @\n";
-		cout << "\t\t\t@                   | 3 |  Exit                             @\n";
-		cout << "\t\t\t@                 -------------------------                 @\n";
-		cout << "\t\t\t@                                                           @\n";
-		cout << "\t\t\t@                                                           @\n";
-		cout << "\t\t\t@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-		cout << "\n\t\t\t                        Option> ";
-		cin >> ch;
-		switch (ch) {
-		case '1':
-			login();
-			adminMenu();
-			break;
-		case '2': {
-			system("cls");
-			cout << "\n\n\t\t\t\t      * HOTEL DEL LUNA * \n";
-			cout << "\t\t\t\t------------------------------\n";
-			cout << "\t\t\t\t\tCUSTOMER LOGIN \n";
-			cout << "\t\t\t\t------------------------------\n\n";
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
-			cout << "\t\t\t\tEnter Username: ";
-			getline(cin, user);
-			transform(user.begin(), user.end(), user.begin(), ::toupper);
-			cout << "\n\t\t\t\tEnter Password: ";
-			cin.getline(pw, 40);
-			string userPassword = string(pw);
-			if (searchNameAndPassword(user, userPassword)) {  
-				custMenu(user, userPassword);  
-			}
-			else {
-				cout << "\n\t\t\t\tInvalid Username or Password...\n\n";
-				system("pause");
-			}
-			break;
-		}
-		case '3':
-			cout << "\n\n\t\t\t\tThank You for using our Room Reservation Service!\n\n";
-			exit(0);
-		default:
-			cout << "\n\n\t\t\t\t\t       Invalid Choices..." << endl;
-			system("pause");
-			break;
-		}
-	} while (ch != '3');
-	system("pause");
-	return 0;
+    system("Color 03");
+    srand(time(0));
+    char ch;
+    string user;
+    char pw[40];
+    
+    do {
+        system("cls");
+        setColor(CYAN);
+        cout << "\n\n\t\t\t   +-------------------------------------------------------+\n";
+        cout << "\t\t\t   |                                                       |\n";
+        cout << "\t\t\t   |                 HOTEL DEL LUNA                        |\n";
+        cout << "\t\t\t   |            ROOM RESERVATION SYSTEM                    |\n";
+        cout << "\t\t\t   |                                                       |\n";
+        cout << "\t\t\t   +-------------------------------------------------------+\n";
+        cout << "\t\t\t   |                                                       |\n";
+        cout << "\t\t\t   |      Welcome to our Room Reservation Service!         |\n";
+        cout << "\t\t\t   |    Please choose the view to proceed next.            |\n";
+        cout << "\t\t\t   |            Have a nice day to you :)                  |\n";
+        cout << "\t\t\t   |                                                       |\n";
+        cout << "\t\t\t   +-------------------------------------------------------+\n";
+        cout << "\t\t\t   |                                                       |\n";
+        cout << "\t\t\t   |                   [1]  Admin View                     |\n";
+        cout << "\t\t\t   |                   [2]  Customer View                  |\n";
+        cout << "\t\t\t   |                   [3]  Exit                           |\n";
+        cout << "\t\t\t   |                                                       |\n";
+        cout << "\t\t\t   +-------------------------------------------------------+\n";
+        setColor(RESET);
+        
+        cout << "\n\t\t\t   Option> ";
+        cin >> ch;
+        
+        switch (ch) {
+        case '1':
+            login();
+            adminMenu();
+            break;
+        case '2': {
+            system("cls");
+            setColor(CYAN);
+            cout << "\n\n\t\t\t\t   +---------------------------------------------------+\n";
+            cout << "\t\t\t\t   |                 CUSTOMER LOGIN                    |\n";
+            cout << "\t\t\t\t   +---------------------------------------------------+\n";
+            setColor(RESET);
+            
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            
+            setColor(WHITE);
+            cout << "\t\t\t\t   | Enter Username: ";
+            getline(cin, user);
+            transform(user.begin(), user.end(), user.begin(), ::toupper);
+            
+            cout << "\t\t\t\t   | Enter Password: ";
+            cin.getline(pw, 40);
+            cout << "\t\t\t\t   +---------------------------------------------------+\n";
+            setColor(RESET);
+            
+            string userPassword = string(pw);
+            
+            if (searchNameAndPassword(user, userPassword)) {  
+                custMenu(user, userPassword);  
+            } else {
+                setColor(RED);
+                cout << "\n\t\t\t\t   +---------------------------------------------------+\n";
+                cout << "\t\t\t\t   |           INVALID USERNAME OR PASSWORD!           |\n";
+                cout << "\t\t\t\t   +---------------------------------------------------+\n";
+                setColor(RESET);
+                system("pause");
+            }
+            break;
+        }
+        case '3':
+            setColor(GREEN);
+            cout << "\n\n\t\t\t\t   +---------------------------------------------------+\n";
+            cout << "\t\t\t\t   |      Thank You for using our Room Reservation     |\n";
+            cout << "\t\t\t\t   |                   Service!                        |\n";
+            cout << "\t\t\t\t   |                                                   |\n";
+            cout << "\t\t\t\t   |               Have a great day!                   |\n";
+            cout << "\t\t\t\t   +---------------------------------------------------+\n\n";
+            setColor(RESET);
+            exit(0);
+        default:
+            setColor(RED);
+            cout << "\n\n\t\t\t\t   +---------------------------------------------------+\n";
+            cout << "\t\t\t\t   |                 INVALID CHOICE!                   |\n";
+            cout << "\t\t\t\t   +---------------------------------------------------+\n";
+            setColor(RESET);
+            system("pause");
+            break;
+        }
+    } while (ch != '3');
+    
+    system("pause");
+    return 0;
 }
 
 bool searchNameAndPassword(string user, string password) {
@@ -805,13 +1159,6 @@ void getDataForAdmin(string file) {
     cout << "\n\t\t\t\t       ";
     vline(43);
     cust.close();
-}
-
-//draw border line
-void vline(int n) {
-	for (int i = 0; i < n; i++)
-		cout << "=";
-	cout << endl;
 }
 
 bool searchName(string user) {
